@@ -118,8 +118,12 @@ static_assert(std::is_same_v<
                       SpeakerAssetsRuntimeActionExecutor*>())),
               SpeakerAssetsRuntimeCore::StepOutcome>);
 
-std::string read_source(const std::string& relative_path) {
-  std::ifstream input(std::string(EASY_INPUT_REPO_ROOT) + "/" + relative_path);
+std::string read_source(const std::string& relative_path,
+                        bool binary = false) {
+  // Binary fixtures (e.g. Ogg/Opus) must open with std::ios::binary: on
+  // Windows default text mode treats an embedded 0x1A byte as EOF.
+  std::ifstream input(std::string(EASY_INPUT_REPO_ROOT) + "/" + relative_path,
+                      binary ? std::ios::binary : std::ios::openmode{});
   assert(input.good());
   std::ostringstream contents;
   contents << input.rdbuf();
@@ -1218,7 +1222,8 @@ void speaker_opus_probe_is_conditional_fixed_and_reusable() {
       read_source("main/platform/speaker_output.cpp");
   const auto app_main = read_source("main/app_main.cpp");
   const auto fixture = read_source(
-      "diagnostics/speaker_opus_probe/assets/easyinput_boot_probe.ogg");
+      "diagnostics/speaker_opus_probe/assets/easyinput_boot_probe.ogg",
+      true);
   const auto input_handler = section(
       app_main,
         "bool handle_input_event(const easy_input::InputEvent& event, void* context) {",
