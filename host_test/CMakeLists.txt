@@ -115,6 +115,7 @@ target_include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../features/speaker_assets/include
 )
 add_keyboard_host_test(held_keyboard_state_tests)
+add_keyboard_host_test(host_action_protocol_tests)
 add_keyboard_host_test(hid_report_queue_tests)
 add_keyboard_host_test(hid_keycode_tests)
 add_keyboard_host_test(input_feedback_tests)

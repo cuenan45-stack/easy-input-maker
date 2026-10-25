@@ -1,5 +1,7 @@
 #include "keyboard/keymap.h"
 
+#include "keyboard/host_action_protocol.h"
+
 #include <utility>
 
 namespace ai_keyboard {
@@ -77,6 +79,19 @@ FirmwareEvent event_for_action(const Action& action,
         return {};
       }
       return {FirmwareEventKind::FixedText, action.text};
+    case ActionKind::HostAction:
+      // Host Action v1: emit exactly once per press, nothing on release.
+      // The runtime event carries the bare canonical lowercase UUID; the
+      // "host_action:" prefix stays config-layer-only.
+      if (phase == InputPhase::Released) {
+        return {};
+      }
+      if (const auto uuid =
+              host_action_uuid_from_config_value(action.text);
+          uuid.has_value()) {
+        return {FirmwareEventKind::HostAction, std::string(*uuid)};
+      }
+      return {};
     case ActionKind::PasteLast:
       return command_event("paste_last", phase);
     case ActionKind::OpenHistory:

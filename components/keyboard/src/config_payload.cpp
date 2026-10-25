@@ -8,6 +8,7 @@
 #include <utility>
 
 #include "keyboard/fixed_text_protocol.h"
+#include "keyboard/host_action_protocol.h"
 
 namespace ai_keyboard {
 namespace {
@@ -542,6 +543,13 @@ std::optional<ActionKind> named_action_kind(const std::string& action) {
 
 ConfigParseStatus parse_action(std::string_view value, Action* action) {
   if (const auto named = string_value(value); named.has_value()) {
+    // Host Action v1: "host_action:<canonical lowercase UUID>" only. Anything
+    // else with the prefix fails closed as UnknownAction (no auto-lowercasing).
+    if (const auto uuid = host_action_uuid_from_config_value(*named);
+        uuid.has_value()) {
+      *action = {ActionKind::HostAction, "", *named};
+      return ConfigParseStatus::Ok;
+    }
     const auto kind = named_action_kind(*named);
     if (!kind.has_value()) {
       return ConfigParseStatus::UnknownAction;

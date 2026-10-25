@@ -45,6 +45,7 @@ enum class ActionKind {
   Copy,
   Paste,
   Undo,
+  HostAction,
 };
 
 enum class HostPlatform {
@@ -81,6 +82,7 @@ enum class FirmwareEventKind {
   HidTap,
   FixedText,
   AppCommand,
+  HostAction,
 };
 
 struct FirmwareEvent {
